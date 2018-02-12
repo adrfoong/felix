@@ -12,17 +12,28 @@ import avatar from './avatar.png';
 import occurrences from './occurrences';
 
 const RecencyCell = (row) => {
-  const timeDiff = row.value ? moment().diff(moment(row.value), 'days') : 100;
 
-  const width = Math.max(1, 100 - timeDiff);
+  const STALE_THRESHOLD = 60;
+  const MEDIUM_THRESHOLD = 30;
+  const FRESH_THRESHOLD = 0;
+  
+  // If the last occurrence is null, we set timeDiff to null
+  const timeDiff = row.value === null ? null : moment().diff(moment(row.value), 'days');
+  console.log(moment(row.value))
+console.log(timeDiff)
+  // If timeDiff is null, we don't want the bar to show up
+  // Otherwise, the bar should at least be 1 pixel wide
+  const width = timeDiff ? Math.max(1, 100 - timeDiff) : 0;
   let age;
 
-  if (timeDiff > 60) {
+  if (timeDiff >= STALE_THRESHOLD) {
     age = 'stale';
-  } else if (timeDiff > 30) {
+  } else if (timeDiff >= MEDIUM_THRESHOLD) {
     age = 'medium';
-  } else {
+  } else if (timeDiff >= FRESH_THRESHOLD) {
     age = 'fresh';
+  } else { // timeDiff can be null
+    age = null;
   }
 
   return (
@@ -42,7 +53,7 @@ const OccurrenceTable = (props) => {
   const columns = [
    { Header: 'First Name', id: 'firstname', accessor: d => d.name.first },
    { Header: 'Last Name', id: 'lastname', accessor: d => d.name.last },
-   { Header: 'Last', id: 'lastOccurrence', accessor: d => (d.lastOccurrence ? moment(d.lastOccurrence).format('LL') : null) },
+   { Header: 'Last Occurrence', id: 'lastOccurrence', accessor: d => (d.lastOccurrence ? moment(d.lastOccurrence).format('LL') : null) },
    {
       Header: 'Recency',
       id: 'recency',
