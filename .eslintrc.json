@@ -5,8 +5,14 @@
         "indent": 0,
         "space-before-function-paren": 0,
         "max-len": 0,
+        "comma-dangle": ["error", "always-multiline"],
 
         "jsx-quotes": ["error", "prefer-single"],
-        "react/jsx-filename-extension": 0
+        "react/jsx-filename-extension": 0,
+        "react/no-multi-comp": 0,
+        "arrow-parens": 0
+    },
+    "env": {
+        "browser": true
     }
 }
