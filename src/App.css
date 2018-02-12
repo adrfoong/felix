@@ -126,3 +126,41 @@
 .stale {
   background-color: #ff2e00;
 }
+
+.tooltip {
+  background-color: orange;
+  /* border: 0px solid #4195fc; */
+  /* border: #222 1px solid; */
+  /* -webkit-box-shadow: 2px 5px 15px 1px rgba(0,0,0,0.95);
+  -moz-box-shadow: 2px 5px 15px 1px rgba(0,0,0,0.95);
+  box-shadow: 2px 5px 15px 1px rgba(0,0,0,0.95); */
+
+  /* border: red 5px solid; */
+  border-radius: 4px;
+  border-bottom-left-radius: 0px;
+  /* box-shadow: 0 0 4px grey; */
+  padding: 3px 5px;
+}
+
+.tooltip::after {
+  content: '';
+  display: block;
+  width: 0;
+  height: 0;
+  position: absolute;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-left: 4px solid orange;
+  /* outline: #ff2e00 1px solid; */
+  box-sizing: border-box;
+  /* box-shadow: 0 0 4px grey; */
+
+  left: 0px;
+  bottom: -3.9px;
+
+  /* Vertically center */
+  /* left: -8px;
+  top: 50%;
+  transform: translateY(-50%) */
+}

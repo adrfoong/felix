@@ -26,8 +26,9 @@ class Tooltip extends Component {
 
     const position = target.getBoundingClientRect();
 
+    this.el.classList.add('tooltip');
     this.el.style.position = 'fixed';
-    this.el.style.top = `${position.top - 20}px`;
+    this.el.style.top = `${position.top - 30}px`;
     this.el.style.left = `${position.left}px`;
 
     return ReactDOM.createPortal(
@@ -46,12 +47,8 @@ Tooltip.propTypes = {
 
 const TooltipContent = props => {
   const { timeDiff } = props;
-  const style = {
-    backgroundColor: 'white',
-    border: '2px solid blue',
-  };
   return (
-    <div style={style}>
+    <div>
       {`${timeDiff} days`}
     </div>
   );
