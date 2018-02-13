@@ -1,8 +1,35 @@
-import { Component } from 'react';
+import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 
-export default class Tooltip extends Component {
+const ModalContainer = props => {
+  return (
+    <div className='modal-container'>
+      { props.children }
+    </div>
+  );
+};
+
+ModalContainer.Basic = props => {
+
+  // const headerStyle = {
+  //   backgroundColor: '#4195fc',
+  //   height: '50px'
+  // };
+
+  return (
+    <div className='modal-container basic'>
+      <div className='modal-header basic'>Header</div>
+      <div className='modal-body basic'>Body</div>
+    </div>
+  );
+};
+
+ModalContainer.propTypes = {
+  children: PropTypes.element.isRequired,
+};
+
+export default class Modal extends Component {
     constructor(props) {
       super(props);
       this.el = document.createElement('div');
@@ -28,13 +55,15 @@ export default class Tooltip extends Component {
     //   this.el.style.left = `${position.left}px`;
 
       return ReactDOM.createPortal(
-        this.props.children,
+        <ModalContainer.Basic>
+          {this.props.children}
+        </ModalContainer.Basic>,
         this.el
       );
     }
   }
 
-  Tooltip.propTypes = {
+  Modal.propTypes = {
     children: PropTypes.element.isRequired,
     // target: PropTypes.instanceOf(Element).isRequired,
   };
