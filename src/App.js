@@ -11,6 +11,7 @@ import './App.css';
 
 import occurrences from './occurrences';
 import OccurrenceTable from './OccurrenceTable';
+import Modal from './Modal';
 
 
 // const Card = props => (
@@ -59,19 +60,42 @@ import OccurrenceTable from './OccurrenceTable';
 //   CardType: PropTypes.func.isRequired,
 // };
 
+const ModalContent = props => {
+  return (
+    <div className='modal-content'>
+      TEST
+    </div>
+  );
+};
+
 export default class App extends Component {
     constructor(props, context) {
       super(props, context);
       this.test = occurrences.record;
+
+      this.state = {
+        modalActive: false,
+      };
+    }
+
+    openModal() {
+      this.setState({ modalActive: true });
+    }
+
+    closeModal() {
+      this.setState({ modalActive: false });
     }
 
     render() {
+      const { modalActive } = this.state;
       return (
         <div className='App'>
           <header className='App-header'>
             <h1 className='App-title'>Welcome to React</h1>
           </header>
           <OccurrenceTable data={this.test} />
+          <button onClick={() => this.openModal()}>Add</button>
+          { modalActive ? <Modal><ModalContent /></Modal> : null}
         </div>
       );
     }

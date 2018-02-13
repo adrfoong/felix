@@ -1,49 +1,10 @@
 
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import ReactTable from 'react-table';
 import moment from 'moment';
-
-class Tooltip extends Component {
-  constructor(props) {
-    super(props);
-    this.el = document.createElement('div');
-    this.root = document.getElementById('tooltip-root');
-  }
-
-  componentDidMount() {
-    this.root.appendChild(this.el);
-  }
-
-  componentWillUnmount() {
-    this.root.removeChild(this.el);
-  }
-
-  render() {
-    const { target } = this.props;
-
-    const position = target.getBoundingClientRect();
-
-    this.el.classList.add('tooltip');
-    this.el.style.position = 'fixed';
-    this.el.style.top = `${position.top - 30}px`;
-    this.el.style.left = `${position.left}px`;
-
-    return ReactDOM.createPortal(
-      this.props.children,
-      this.el
-    );
-  }
-}
-
-Tooltip.propTypes = {
-  children: PropTypes.element.isRequired,
-  target: PropTypes.instanceOf(Element).isRequired,
-  // position: PropTypes.objectOf(PropTypes.number).isRequired,
-  // content: PropTypes.element.isRequired,
-};
+import Tooltip from './Tooltip';
 
 const TooltipContent = props => {
   const { timeDiff } = props;
@@ -56,10 +17,6 @@ const TooltipContent = props => {
 
 TooltipContent.propTypes = {
   timeDiff: PropTypes.number.isRequired,
-};
-
-TooltipContent.propTypes = {
-  // position: PropTypes.objectOf(PropTypes.number).isRequired,
 };
 
 class RecencyCell extends Component {
@@ -88,7 +45,8 @@ class RecencyCell extends Component {
 
     // If timeDiff is null, we don't want the bar to show up
     // Otherwise, the bar should at least be 1 pixel wide
-    const width = timeDiff ? Math.max(1, 100 - timeDiff) : 0;
+    // const width = timeDiff ? Math.max(1, 100 - timeDiff) : 0;
+    const width = timeDiff ? Math.max(1, Math.min(timeDiff, 100)) : 0;
     let age;
 
     if (timeDiff >= STALE_THRESHOLD) {
