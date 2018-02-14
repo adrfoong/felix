@@ -60,13 +60,11 @@ import Modal from './Modal';
 //   CardType: PropTypes.func.isRequired,
 // };
 
-const ModalContent = props => {
-  return (
-    <div className='modal-content'>
+const ModalContent = props => (
+  <div className='modal-content'>
       TEST
-    </div>
+  </div>
   );
-};
 
 export default class App extends Component {
     constructor(props, context) {

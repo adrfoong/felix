@@ -10,23 +10,23 @@ const ModalContainer = props => {
   );
 };
 
+ModalContainer.propTypes = {
+    children: PropTypes.element.isRequired,
+  };
+
 ModalContainer.Basic = props => {
-
-  // const headerStyle = {
-  //   backgroundColor: '#4195fc',
-  //   height: '50px'
-  // };
-
+    const { header, body } = props;
   return (
     <div className='modal-container basic'>
-      <div className='modal-header basic'>Header</div>
-      <div className='modal-body basic'>Body</div>
+      <div className='modal-header basic'>{header}</div>
+      <div className='modal-body basic'>{body}</div>
     </div>
   );
 };
 
-ModalContainer.propTypes = {
-  children: PropTypes.element.isRequired,
+ModalContainer.Basic.propTypes = {
+    header: PropTypes.element.isRequired,
+    body: PropTypes.element.isRequired,
 };
 
 export default class Modal extends Component {
@@ -45,25 +45,22 @@ export default class Modal extends Component {
     }
 
     render() {
-    //   const { target } = this.props;
-
-    //   const position = target.getBoundingClientRect();
-
       this.el.classList.add('modal');
-    //   this.el.style.position = 'fixed';
-    //   this.el.style.top = `${position.top - 30}px`;
-    //   this.el.style.left = `${position.left}px`;
+
+      const { header, body } = this.props;
 
       return ReactDOM.createPortal(
-        <ModalContainer.Basic>
+        <ModalContainer.Basic header={header} body={body}>
           {this.props.children}
         </ModalContainer.Basic>,
         this.el
       );
     }
-  }
+}
 
-  Modal.propTypes = {
+Modal.propTypes = {
     children: PropTypes.element.isRequired,
-    // target: PropTypes.instanceOf(Element).isRequired,
-  };
+    header: PropTypes.element.isRequired,
+    body: PropTypes.element.isRequired,
+// target: PropTypes.instanceOf(Element).isRequired,
+};
