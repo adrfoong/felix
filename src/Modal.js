@@ -11,11 +11,11 @@ const ModalContainer = props => {
 };
 
 ModalContainer.propTypes = {
-    children: PropTypes.element.isRequired,
-  };
+  children: PropTypes.element.isRequired,
+};
 
-ModalContainer.Basic = props => {
-    const { header, body } = props;
+const BasicModal = props => {
+  const { header, body } = props;
   return (
     <div className='modal-container basic'>
       <div className='modal-header basic'>{header}</div>
@@ -24,43 +24,43 @@ ModalContainer.Basic = props => {
   );
 };
 
-ModalContainer.Basic.propTypes = {
+BasicModal.propTypes = {
     header: PropTypes.element.isRequired,
     body: PropTypes.element.isRequired,
 };
 
 export default class Modal extends Component {
-    constructor(props) {
-      super(props);
-      this.el = document.createElement('div');
-      this.root = document.getElementById('modal-root');
-    }
+  constructor(props) {
+    super(props);
+    this.el = document.createElement('div');
+    this.root = document.getElementById('modal-root');
+  }
 
-    componentDidMount() {
-      this.root.appendChild(this.el);
-    }
+  componentDidMount() {
+    this.root.appendChild(this.el);
+  }
 
-    componentWillUnmount() {
-      this.root.removeChild(this.el);
-    }
+  componentWillUnmount() {
+    this.root.removeChild(this.el);
+  }
 
-    render() {
-      this.el.classList.add('modal');
+  render() {
+    this.el.classList.add('modal');
 
-      const { header, body } = this.props;
+    const { header, body } = this.props;
 
-      return ReactDOM.createPortal(
-        <ModalContainer.Basic header={header} body={body}>
-          {this.props.children}
-        </ModalContainer.Basic>,
-        this.el
-      );
-    }
+    return ReactDOM.createPortal(
+      <BasicModal header={header} body={body}>
+        {this.props.children}
+      </BasicModal>,
+      this.el
+    );
+  }
 }
 
 Modal.propTypes = {
-    children: PropTypes.element.isRequired,
-    header: PropTypes.element.isRequired,
-    body: PropTypes.element.isRequired,
+  children: PropTypes.element.isRequired,
+  header: PropTypes.element.isRequired,
+  body: PropTypes.element.isRequired,
 // target: PropTypes.instanceOf(Element).isRequired,
 };
