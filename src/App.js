@@ -11,7 +11,7 @@ import './App.css';
 
 import occurrences from './occurrences';
 import OccurrenceTable from './OccurrenceTable';
-import Modal from './Modal';
+import { BasicModal } from './Modal';
 
 
 // const Card = props => (
@@ -60,12 +60,6 @@ import Modal from './Modal';
 //   CardType: PropTypes.func.isRequired,
 // };
 
-const ModalContent = props => (
-  <div className='modal-content'>
-      TEST
-  </div>
-  );
-
 export default class App extends Component {
     constructor(props, context) {
       super(props, context);
@@ -93,7 +87,7 @@ export default class App extends Component {
           </header>
           <OccurrenceTable data={this.test} />
           <button onClick={() => this.openModal()}>Add</button>
-          { modalActive ? <Modal><ModalContent /></Modal> : null}
+          { modalActive ? <BasicModal header='Hello' body='you' /> : null}
         </div>
       );
     }

@@ -1,35 +1,13 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 
-const ModalContainer = props => {
-  return (
-    <div className='modal-container'>
-      { props.children }
-    </div>
-  );
-};
+import Button from './Button';
 
-ModalContainer.propTypes = {
-  children: PropTypes.element.isRequired,
-};
+import './Modal.css';
 
-const BasicModal = props => {
-  const { header, body } = props;
-  return (
-    <div className='modal-container basic'>
-      <div className='modal-header basic'>{header}</div>
-      <div className='modal-body basic'>{body}</div>
-    </div>
-  );
-};
-
-BasicModal.propTypes = {
-    header: PropTypes.element.isRequired,
-    body: PropTypes.element.isRequired,
-};
-
-export default class Modal extends Component {
+class Modal extends Component {
   constructor(props) {
     super(props);
     this.el = document.createElement('div');
@@ -47,12 +25,13 @@ export default class Modal extends Component {
   render() {
     this.el.classList.add('modal');
 
-    const { header, body } = this.props;
+    const { children } = this.props;
 
     return ReactDOM.createPortal(
-      <BasicModal header={header} body={body}>
-        {this.props.children}
-      </BasicModal>,
+      // <BasicModal header={header} body={body}>
+      //   {this.props.children}
+      // </BasicModal>,
+      children,
       this.el
     );
   }
@@ -60,7 +39,52 @@ export default class Modal extends Component {
 
 Modal.propTypes = {
   children: PropTypes.element.isRequired,
-  header: PropTypes.element.isRequired,
-  body: PropTypes.element.isRequired,
+  // header: PropTypes.element.isRequired,
+  // body: PropTypes.element.isRequired,
 // target: PropTypes.instanceOf(Element).isRequired,
 };
+
+const ModalContainer = props => {
+  const { className } = props;
+
+  return (
+    <div className={classNames('modal-container', className)}>
+      { props.children }
+    </div>
+  );
+};
+
+ModalContainer.propTypes = {
+  children: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.element),
+    PropTypes.element,
+  ]).isRequired,
+  className: PropTypes.string,
+};
+
+ModalContainer.defaultProps = {
+  className: '',
+};
+
+const BasicModal = props => {
+  const { header, body } = props;
+  return (
+    <Modal>
+      <ModalContainer className='basic'>
+        <div className='modal-header basic'>{header}</div>
+        <div className='modal-body basic'>
+          {body}
+          <Button href='asd'>Click me</Button>
+          <button className='button outline'>Click Me</button>
+        </div>
+      </ModalContainer>
+    </Modal>
+  );
+};
+
+BasicModal.propTypes = {
+    header: PropTypes.string.isRequired,
+    body: PropTypes.string.isRequired,
+};
+
+export { BasicModal, Modal };

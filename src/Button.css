@@ -1,0 +1,35 @@
+.button {
+  box-sizing: border-box;
+  height: 50px;
+  /* width: 3em; */
+
+  -webkit-border-radius: 4;
+  -moz-border-radius: 4;
+  border-radius: 4px;
+  border: none;
+  font-family: Arial;
+  color: #ffffff;
+  font-size: 20px;
+  background: #2ca8f5;
+  padding: 10px 20px 10px 20px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: #3498db;
+}
+
+.button.outline {
+  font-family: Arial;
+  color: #2ca8f5;
+  font-size: 20px;
+  background: #ffffff;
+  padding: 10px 20px 10px 20px;
+  border: solid #2ca8f5 2px;
+}
+
+.button.outline:hover {
+  color: #ffffff;
+  background: #2ca8f5;
+}
