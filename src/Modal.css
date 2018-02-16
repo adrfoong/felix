@@ -1,4 +1,4 @@
-.modal-container {
+.modal__container {
   box-sizing: border-box;
   width: 50%;
   height: 50%;
@@ -14,7 +14,7 @@
 
 }
 
-.modal::before {
+.modal.show::before {
   content: '';
   width: 100vw;
   height: 100vh;
@@ -24,62 +24,52 @@
   left: 0;
 }
 
-.modal-header.basic {
+.modal__container--basic {
+  display: grid;
+  grid-template-areas: 'header'
+                        'body'
+                        'footer';
+  grid-template-rows: 50px auto 40px;
+}
+
+.modal__header--basic {
   box-sizing: border-box;
   background-color: #4195fc;
-  height: 50px;
+  /* height: 50px; */
   border-radius: 2.5px;
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
 
   padding: 5px;
-  border-bottom: 2.5px solid white;
+  grid-area: header;
 }
 
-.modal-body.basic {
+.modal__body--basic {
   box-sizing: border-box;
-  /* background-color: #5786be; */
-  height: calc(100% - 50px);
+  background-color: #5786be;
+  /* height: calc(100% - 50px); */
   border-radius: 2.5px;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 
   padding: 5px;
-  border-top: 2.5px solid white;
+  margin: 5px 0;
+  grid-area: body;
 }
 
-.button {
-  box-sizing: border-box;
-  height: 50px;
-  /* width: 3em; */
+.modal__footer--basic {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 
-  -webkit-border-radius: 4;
-  -moz-border-radius: 4;
-  border-radius: 4px;
-  border: none;
-  font-family: Arial;
-  color: #ffffff;
-  font-size: 20px;
-  background: #2ca8f5;
-  padding: 10px 20px 10px 20px;
-  text-decoration: none;
-  cursor: pointer;
+  grid-area: footer;
 }
 
-.button:hover {
-  background: #3498db;
+.button-container {
+  display: flex;
+  justify-content: flex-end;
 }
 
-.button.outline {
-  font-family: Arial;
-  color: #2ca8f5;
-  font-size: 20px;
-  background: #ffffff;
-  padding: 10px 20px 10px 20px;
-  border: solid #2ca8f5 2px;
-}
-
-.button.outline:hover {
-  color: #ffffff;
-  background: #2ca8f5;
+.button-container .button:not(:nth-last-child(1)) {
+  margin-right: 5px;
 }

@@ -11,7 +11,7 @@ import './App.css';
 
 import occurrences from './occurrences';
 import OccurrenceTable from './OccurrenceTable';
-import { BasicModal } from './Modal';
+import { BasicModal, Modal } from './Modal';
 
 
 // const Card = props => (
@@ -87,7 +87,13 @@ export default class App extends Component {
           </header>
           <OccurrenceTable data={this.test} />
           <button onClick={() => this.openModal()}>Add</button>
-          { modalActive ? <BasicModal header='Hello' body='you' /> : null}
+          <BasicModal
+            header='Hello'
+            body='you'
+            isOpen={modalActive}
+            onAccept={() => this.closeModal()}
+            onCancel={() => this.closeModal()}
+          />
         </div>
       );
     }

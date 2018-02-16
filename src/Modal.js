@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
@@ -23,32 +23,43 @@ class Modal extends Component {
   }
 
   render() {
+    const { children, isOpen, variant } = this.props;
+
     this.el.classList.add('modal');
 
-    const { children } = this.props;
+    if (isOpen) {
+      this.el.classList.add('show');
+    } else {
+      this.el.classList.remove('show');
+    }
 
-    return ReactDOM.createPortal(
-      // <BasicModal header={header} body={body}>
-      //   {this.props.children}
-      // </BasicModal>,
-      children,
+    const variantClass = `modal__container--${variant}`;
+
+    return isOpen ? ReactDOM.createPortal(
+      <ModalContainer className={classNames('modal__container', variantClass)}>
+        { children }
+      </ModalContainer>,
       this.el
-    );
+    ) : null;
   }
 }
 
 Modal.propTypes = {
   children: PropTypes.element.isRequired,
-  // header: PropTypes.element.isRequired,
-  // body: PropTypes.element.isRequired,
-// target: PropTypes.instanceOf(Element).isRequired,
+  isOpen: PropTypes.bool,
+  variant: PropTypes.string,
+};
+
+Modal.defaultProps = {
+  isOpen: false,
+  variant: undefined,
 };
 
 const ModalContainer = props => {
   const { className } = props;
 
   return (
-    <div className={classNames('modal-container', className)}>
+    <div className={classNames('modal__container', className)}>
       { props.children }
     </div>
   );
@@ -66,18 +77,37 @@ ModalContainer.defaultProps = {
   className: '',
 };
 
-const BasicModal = props => {
-  const { header, body } = props;
+const BasicModalContent = props => {
+  const { header, body, onAccept, onCancel } = props;
   return (
-    <Modal>
-      <ModalContainer className='basic'>
-        <div className='modal-header basic'>{header}</div>
-        <div className='modal-body basic'>
-          {body}
-          <Button href='asd'>Click me</Button>
-          <button className='button outline'>Click Me</button>
+    <Fragment>
+      <div className='modal__header--basic'>{header}</div>
+      <div className='modal__body--basic'>
+        {body}
+      </div>
+      <div className='modal__footer--basic'>
+        <div className='button-container'>
+          <Button variant='outline' onClick={onCancel}>OK</Button>
+          <Button onClick={onAccept}>Cancel</Button>
         </div>
-      </ModalContainer>
+      </div>
+    </Fragment>
+  );
+};
+
+BasicModalContent.propTypes = {
+  header: PropTypes.node.isRequired,
+  body: PropTypes.node.isRequired,
+  onAccept: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+};
+
+
+const BasicModal = props => {
+  const { isOpen } = props;
+  return (
+    <Modal variant='basic' isOpen={isOpen}>
+      <BasicModalContent {...props} />
     </Modal>
   );
 };
@@ -85,6 +115,13 @@ const BasicModal = props => {
 BasicModal.propTypes = {
     header: PropTypes.string.isRequired,
     body: PropTypes.string.isRequired,
+    onAccept: PropTypes.func.isRequired,
+    onCancel: PropTypes.func.isRequired,
+    isOpen: PropTypes.bool,
+};
+
+BasicModal.defaultProps = {
+  isOpen: false,
 };
 
 export { BasicModal, Modal };
