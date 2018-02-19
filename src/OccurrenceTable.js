@@ -85,47 +85,31 @@ RecencyCell.propTypes = {
   // position: PropTypes.objectOf(PropTypes.number).isRequired,
 };
 
-// const RecencyCell = (row) => {
-//   const STALE_THRESHOLD = 60;
-//   const MEDIUM_THRESHOLD = 30;
-//   const FRESH_THRESHOLD = 0;
+const EditableCell = (cellInfo) => {
+  return (
+    <div
+      style={{ backgroundColor: '#fafafa' }}
+      contentEditable
+      suppressContentEditableWarning
+      onBlur={e => {
+        cellInfo.column.updateData(e.target.innerHTML, cellInfo.index);
+      }}
+    >
+      { cellInfo.row[cellInfo.column.id] }
+    </div>
+  );
+};
 
-//   // If the last occurrence is null, we set timeDiff to null
-//   const timeDiff = row.value === null ? null : moment().diff(moment(row.value), 'days');
+class OccurrenceTable extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      data: props.data,
+    };
 
-//   // If timeDiff is null, we don't want the bar to show up
-//   // Otherwise, the bar should at least be 1 pixel wide
-//   const width = timeDiff ? Math.max(1, 100 - timeDiff) : 0;
-//   let age;
-
-//   if (timeDiff >= STALE_THRESHOLD) {
-//     age = 'stale';
-//   } else if (timeDiff >= MEDIUM_THRESHOLD) {
-//     age = 'medium';
-//   } else if (timeDiff >= FRESH_THRESHOLD) {
-//     age = 'fresh';
-//   } else { // timeDiff can be null
-//     age = null;
-//   }
-
-//   return (
-//     <div className='recency-cell-container'>
-//       <div
-//         style={{
-//           width: `${width}%`,
-//         }}
-//         className={classNames('recency-cell-indicator', age)}
-//       />
-//     </div>
-//   );
-// };
-
-const OccurrenceTable = (props) => {
-  const { data } = props;
-
-  const columns = [
-      { Header: 'First Name', id: 'firstname', accessor: d => d.name.first },
-      { Header: 'Last Name', id: 'lastname', accessor: d => d.name.last },
+    this.columns = [
+      { Header: 'First Name', id: 'firstName', updateData: (val, index) => this.update(val, index, 'firstName'), accessor: 'firstName', Cell: EditableCell },
+      { Header: 'Last Name', id: 'lastName', updateData: (val, index) => this.update(val, index, 'lastName'), accessor: 'lastName', Cell: EditableCell },
       { Header: 'Last Occurrence', id: 'lastOccurrence', accessor: d => (d.lastOccurrence ? moment(d.lastOccurrence).format('LL') : null) },
       {
           Header: 'Recency',
@@ -133,17 +117,45 @@ const OccurrenceTable = (props) => {
           accessor: d => (d.lastOccurrence ? d.lastOccurrence : null),
           Cell: row => <RecencyCell row={row} />,
       },
-  ];
-  const settings = {
-    defaultPageSize: 10,
-  };
+    ];
+  }
 
-  return (
-    <div className='occurrence-table'>
-      <ReactTable className='-striped -highlight' {...settings} data={data} columns={columns} />
-    </div>
-  );
-};
+  /**
+   * Delegate control to update state with modified data
+   */
+  update(val, index, prop) {
+    const { data } = this.state;
+
+    const change = { [prop]: val };
+
+    // Create new data state
+    const updatedData = data.map((_row, i) => {
+      if (i !== index) {
+        return _row;
+      }
+
+      return { ..._row, ...change };
+    });
+
+    // Update state with new state
+    this.setState({ data: updatedData });
+  }
+
+  render() {
+    // We're not going to modify data at this point, just take data from the state and render
+    const { data } = this.state;
+
+    const settings = {
+      defaultPageSize: 10,
+    };
+
+    return (
+      <div className='occurrence-table'>
+        <ReactTable className='-striped -highlight' {...settings} data={data} columns={this.columns} />
+      </div>
+    );
+  }
+}
 
 OccurrenceTable.propTypes = {
   data: PropTypes.arrayOf(PropTypes.object).isRequired,

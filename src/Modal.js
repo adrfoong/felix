@@ -20,6 +20,7 @@ const ModalPortalHOC = (WrappedComponent, ModalElement) => {
     }
 
     shouldComponentUpdate() {
+      // Do not update if we've handled the modal
       if (this.ignoreUpdate) {
         this.ignoreUpdate = false;
         return false;
@@ -42,6 +43,9 @@ const ModalPortalHOC = (WrappedComponent, ModalElement) => {
       this.parent.removeChild(this.modalPortal);
     }
 
+    /**
+     * Insert the modal container before the WrappedComponent and render the modal into that container
+     */
     mountModal(e) {
       this.parent = e.target.parentNode;
 
