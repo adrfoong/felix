@@ -1,3 +1,18 @@
+
+.button {
+  --main-background-color: #00BBFF;
+  --hover-background-color: #00A3E5;
+  --main-text-color: #ffffff;
+  --hover-text-color: #ffffff;
+}
+
+.button--outline {
+  --main-background-color: #ffffff;
+  --hover-background-color: #00BBFF;
+  --main-text-color: #00BBFF;
+  --hover-text-color: #ffffff;
+}
+
 .button {
   box-sizing: border-box;
   display: inline-block;
@@ -6,29 +21,57 @@
 
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
-  border-radius: 4px;
+  border-radius: 2px;
   border: none;
   font-family: Arial;
-  color: #ffffff;
+  color: var(--main-text-color);
   font-size: 15px;
-  background: #2ca8f5;
   padding: 5px 10px;
   text-decoration: none;
   cursor: pointer;
+
+  background: var(--main-background-color);
+  /* color shift effect */
+  /* background: linear-gradient(to right, var(--main-background-color) 50%, var(--hover-background-color) 50%); */
+  /* background-size: 200% 100%; */
+  /* transition: 0.5s; */
 }
 
 .button:hover {
-  background: #5bbae6;
+  /* background-position: right center; */
+  background: var(--hover-background-color);
 }
 
 .button--outline {
-  color: #2ca8f5;
-  background: #ffffff;
+  color: var(--main-text-color);
   padding: 10px 20px 10px 20px;
-  border: solid #2ca8f5 1px;
+  border: solid var(--hover-background-color) 1px;
+  background: var(--main-background-color);
 }
 
 .button--outline:hover {
-  color: #ffffff;
-  background: #2ca8f5;
+  color: var(--hover-text-color);
+  background: var(--hover-background-color);
+}
+
+.button.slide-right {
+  background: linear-gradient(to left, var(--main-background-color) 50%, var(--hover-background-color) 50%);
+  background-position: right center;
+  background-size: 200% 100%;
+  transition: .3s ease-out;
+}
+
+.button.slide-right:hover {
+  background-position: left center;
+}
+
+.button.slide-down {
+  background: linear-gradient(to top, var(--main-background-color) 50%, var(--hover-background-color) 50%);
+  background-position: bottom center;
+  background-size: 100% 200%;
+  transition: .3s ease-out;
+}
+
+.button.slide-down:hover {
+  background-position: top center;
 }

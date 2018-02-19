@@ -11,7 +11,8 @@ import './App.css';
 
 import occurrences from './occurrences';
 import OccurrenceTable from './OccurrenceTable';
-import { BasicModal, Modal } from './Modal';
+import { BasicModal, Modal, ModalPortalHOC } from './Modal';
+import Button from './Button';
 
 
 // const Card = props => (
@@ -64,36 +65,39 @@ export default class App extends Component {
     constructor(props, context) {
       super(props, context);
       this.test = occurrences.record;
+      this.modalPortal = ModalPortalHOC(
+        Button,
+        <BasicModal
+          header='Hello'
+          body='you'
+          onAccept={() => this.closeModal()}
+          onCancel={() => this.closeModal()}
+        />
+      );
 
       this.state = {
-        modalActive: false,
+        showModal: false,
       };
     }
 
     openModal() {
-      this.setState({ modalActive: true });
+      this.setState({ showModal: true });
     }
 
     closeModal() {
-      this.setState({ modalActive: false });
+      this.setState({ showModal: false });
     }
 
     render() {
-      const { modalActive } = this.state;
+      const { showModal } = this.state;
+      const ModalPortal = this.modalPortal;
       return (
         <div className='App'>
           <header className='App-header'>
             <h1 className='App-title'>Welcome to React</h1>
           </header>
           <OccurrenceTable data={this.test} />
-          <button onClick={() => this.openModal()}>Add</button>
-          <BasicModal
-            header='Hello'
-            body='you'
-            isOpen={modalActive}
-            onAccept={() => this.closeModal()}
-            onCancel={() => this.closeModal()}
-          />
+          <ModalPortal showModal={showModal}>Modal</ModalPortal>
         </div>
       );
     }

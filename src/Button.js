@@ -2,12 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
+// import { ModalPortalHOC } from './Modal';
+
 import './Button.css';
 
 const Button = props => {
-  const { href, onClick, children, variant } = props;
+  const { href, onClick, children, variant, className } = props;
   const variantClass = variant ? `button--${variant}` : null;
-  const style = classNames('button', variantClass);
+  const style = classNames('button', variantClass, className);
   return href ? <a href={href} className={style}> { children } </a> : <button onClick={onClick} className={style}> { children } </button>;
 };
 
@@ -43,12 +45,17 @@ Button.propTypes = {
   },
   children: PropTypes.node.isRequired,
   variant: PropTypes.string,
+  className: PropTypes.string,
 };
 
 Button.defaultProps = {
   href: undefined,
   onClick: undefined,
   variant: undefined,
+  className: undefined,
 };
 
+// const ModalButton = ModalPortalHOC(Button);
+
 export default Button;
+// export { ModalButton };
