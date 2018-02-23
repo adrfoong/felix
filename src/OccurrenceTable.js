@@ -249,7 +249,7 @@ class OccurrenceTable extends Component {
   addNewRow(index) {
     const { data } = this.state;
 
-    const updatedData = index !== null ?
+    const updatedData = index !== undefined ?
     [...data.slice(0, index + 1), { firstName: 'John', lastName: 'Doe', lastOccurrence: moment() }, ...data.slice(index + 1)] :
     [...data, { firstName: 'John', lastName: 'Doe', lastOccurrence: moment() }];
     this.setState({ data: updatedData });
