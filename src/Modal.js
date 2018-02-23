@@ -74,16 +74,17 @@ class Modal extends Component {
     super(props);
     this.el = document.createElement('div');
     this.root = document.getElementById('modal-root');
+    this.handleOutsideClick = this.handleOutsideClick.bind(this);
   }
 
   componentDidMount() {
     this.root.appendChild(this.el);
-    document.addEventListener('mousedown', (e) => this.handleOutsideClick(e));
+    document.addEventListener('mousedown', this.handleOutsideClick);
   }
 
   componentWillUnmount() {
     this.root.removeChild(this.el);
-    document.removeEventListener('mousedown', (e) => this.handleOutsideClick(e));
+    document.removeEventListener('mousedown', this.handleOutsideClick);
   }
 
   handleOutsideClick(e) {

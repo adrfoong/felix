@@ -102,7 +102,7 @@ body * {
 }
 
 .occurrence-table {
-  width: 1000px;
+  /* width: 1000px; */
 }
 
 .recency-cell-container {
@@ -187,4 +187,39 @@ body * {
   top: 25%;
   left: 25%; */
   /* background: red */
+}
+
+.context-menu {
+  position: absolute;
+  background: rgb(255, 165, 0, 0.75);
+  height: 100%;
+  width: 100%;
+  /* opacity: .5; */
+}
+
+
+.context-menu.show {
+  opacity: 0.5;
+}
+
+.context-menu__content {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.context-menu__container .button-container {
+  display: flex;
+  align-items: center;
+  margin: 5px;
+}
+
+.context-menu__container {
+  position: relative;
+}
+
+.context-menu__overlay {
+  background: grey;
+  opacity: 0.5;
 }

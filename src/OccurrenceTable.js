@@ -6,6 +6,8 @@ import ReactTable from 'react-table';
 import moment from 'moment';
 import Tooltip from './Tooltip';
 
+import Button, { IconButton } from './Button';
+
 const TooltipContent = props => {
   const { timeDiff } = props;
   return (
@@ -46,7 +48,7 @@ class RecencyCell extends Component {
     // If timeDiff is null, we don't want the bar to show up
     // Otherwise, the bar should at least be 1 pixel wide
     // const width = timeDiff ? Math.max(1, 100 - timeDiff) : 0;
-    const width = timeDiff ? Math.max(1, Math.min(timeDiff, 100)) : 0;
+    const width = timeDiff !== null ? Math.max(1, Math.min(timeDiff, 100)) : 0;
     let age;
 
     if (timeDiff >= STALE_THRESHOLD) {
@@ -85,19 +87,118 @@ RecencyCell.propTypes = {
   // position: PropTypes.objectOf(PropTypes.number).isRequired,
 };
 
-const EditableCell = (cellInfo) => {
-  return (
-    <div
-      style={{ backgroundColor: '#fafafa' }}
-      contentEditable
-      suppressContentEditableWarning
-      onBlur={e => {
+const EditableCell = (cellInfo) => (
+  <div
+    style={{ backgroundColor: '#fafafa' }}
+    contentEditable
+    suppressContentEditableWarning
+    onBlur={e => {
         cellInfo.column.updateData(e.target.innerHTML, cellInfo.index);
       }}
-    >
-      { cellInfo.row[cellInfo.column.id] }
+  >
+    { cellInfo.row[cellInfo.column.id] }
+  </div>
+);
+
+const ContextMenu = props => {
+  const { closeMenu, rowInfo, addRow, removeRow } = props;
+  let container;
+  const handleOutsideClick = (e) => {
+    if (container && !container.contains(e.target)) {
+      // console.log('Clicked outside');
+      document.removeEventListener('mousedown', handleOutsideClick);
+
+      closeMenu();
+    }
+  };
+
+  document.addEventListener('mousedown', handleOutsideClick);
+
+
+  return (
+    <div className='context-menu' ref={ref => { container = ref; }}>
+      <div className='context-menu__content'>
+        <div className='button-container'>
+          <IconButton disabled={!rowInfo} onClick={addRow} className='add'><i className='fas fa-plus' /></IconButton>
+          <IconButton disabled={!rowInfo} onClick={removeRow} className='remove'><i className='fas fa-times' /></IconButton>
+        </div>
+      </div>
     </div>
   );
+};
+
+ContextMenu.propTypes = {
+  closeMenu: PropTypes.func.isRequired,
+  rowInfo: PropTypes.shape({}).isRequired,
+  addRow: PropTypes.func.isRequired,
+  removeRow: PropTypes.func.isRequired,
+};
+
+class TrGroupComponent extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      showMenu: false,
+    };
+    TrGroupComponent.displayName = 'TrGroup';
+  }
+
+  showMenu() {
+    this.setState({
+      showMenu: true,
+    });
+  }
+
+  hideMenu() {
+    this.setState({
+      showMenu: false,
+    });
+  }
+
+  toggleMenu(e) {
+    e.preventDefault();
+    this.setState({
+      showMenu: !this.state.showMenu,
+    });
+  }
+
+  render() {
+    const { children, addRow, removeRow, className, rowInfo, ...rest } = this.props;
+    const { showMenu } = this.state;
+    // if (!this.menu) {
+    //   this.menu = <TableContextMenu hideMenu={this.hideMenu} addRow={addRow} removeRow={removeRow} rowInfo={rowInfo} />;
+    // }
+
+    // const { index } = rowInfo;
+
+    return (
+      <div
+        onContextMenu={e => this.toggleMenu(e)}
+        // onMouseOver={e => this.showMenu(e)}
+        // onFocus={() => { console.log('focus'); }}
+        // onMouseOut={e => this.hideMenu(e)}
+        // onBlur={() => { console.log('blur'); }}
+        className={classNames('rt-tr-group context-menu__container', className)}
+        {...rest}
+      >
+        {showMenu ? <ContextMenu closeMenu={() => this.hideMenu()} rowInfo={rowInfo} addRow={addRow} removeRow={removeRow} /> : null}
+        {children}
+      </div>
+    );
+  }
+}
+
+TrGroupComponent.propTypes = {
+  rowInfo: PropTypes.shape({}),
+  addRow: PropTypes.func.isRequired,
+  removeRow: PropTypes.func.isRequired,
+  children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]).isRequired,
+  className: PropTypes.string,
+};
+
+TrGroupComponent.defaultProps = {
+  className: undefined,
+  rowInfo: undefined,
 };
 
 class OccurrenceTable extends Component {
@@ -120,8 +221,12 @@ class OccurrenceTable extends Component {
     ];
   }
 
+  componentDidUpdate() {
+    this.props.save(this.state.data);
+  }
+
   /**
-   * Delegate control to update state with modified data
+   * Delegate control to update state with modified data without mutating current state
    */
   update(val, index, prop) {
     const { data } = this.state;
@@ -141,6 +246,22 @@ class OccurrenceTable extends Component {
     this.setState({ data: updatedData });
   }
 
+  addNewRow(index) {
+    const { data } = this.state;
+
+    const updatedData = index !== null ?
+    [...data.slice(0, index + 1), { firstName: 'John', lastName: 'Doe', lastOccurrence: moment() }, ...data.slice(index + 1)] :
+    [...data, { firstName: 'John', lastName: 'Doe', lastOccurrence: moment() }];
+    this.setState({ data: updatedData });
+  }
+
+  removeRow(index) {
+    const { data } = this.state;
+
+    const updatedData = [...data.slice(0, index), ...data.slice(index + 1)];
+    this.setState({ data: updatedData });
+  }
+
   render() {
     // We're not going to modify data at this point, just take data from the state and render
     const { data } = this.state;
@@ -149,9 +270,25 @@ class OccurrenceTable extends Component {
       defaultPageSize: 10,
     };
 
+    const TrGroupProps = (state, rowInfo) => ({
+      rowInfo,
+      removeRow: () => this.removeRow(rowInfo.index),
+      addRow: () => this.addNewRow(rowInfo.index),
+    });
+
     return (
       <div className='occurrence-table'>
-        <ReactTable className='-striped -highlight' {...settings} data={data} columns={this.columns} />
+        <ReactTable
+          className='-striped -highlight'
+          {...settings}
+          data={data}
+          columns={this.columns}
+          getTrGroupProps={TrGroupProps}
+          TrGroupComponent={TrGroupComponent}
+        />
+        <Button onClick={() => this.addNewRow()}>Add Row</Button>
+        {/* <IconButton><i className='fas fa-times' /></IconButton> */}
+        {/* <div><i className='fas fa-times' /></div> */}
       </div>
     );
   }
@@ -159,6 +296,7 @@ class OccurrenceTable extends Component {
 
 OccurrenceTable.propTypes = {
   data: PropTypes.arrayOf(PropTypes.object).isRequired,
+  save: PropTypes.func.isRequired,
 };
 
 export default OccurrenceTable;

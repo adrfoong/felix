@@ -7,10 +7,10 @@ import classNames from 'classnames';
 import './Button.css';
 
 const Button = props => {
-  const { href, onClick, children, variant, className } = props;
+  const { href, onClick, children, variant, className, disabled } = props;
   const variantClass = variant ? `button--${variant}` : null;
   const style = classNames('button', variantClass, className);
-  return href ? <a href={href} className={style}> { children } </a> : <button onClick={onClick} className={style}> { children } </button>;
+  return href ? <a disabled={disabled} href={href} className={style}> { children } </a> : <button disabled={disabled} onClick={onClick} className={style}> { children } </button>;
 };
 
 const requiredProps = ['href', 'onClick'];
@@ -44,18 +44,35 @@ Button.propTypes = {
     return null;
   },
   children: PropTypes.node.isRequired,
+  disabled: PropTypes.bool,
   variant: PropTypes.string,
   className: PropTypes.string,
 };
 
 Button.defaultProps = {
+  disabled: false,
   href: undefined,
   onClick: undefined,
   variant: undefined,
   className: undefined,
 };
 
+
+const IconButton = props => {
+  const { className } = props;
+  const newProps = { ...props, className: classNames('button--icon', className) };
+  return <Button {...newProps} />;
+};
+
+IconButton.propTypes = {
+  className: PropTypes.string,
+};
+
+IconButton.defaultProps = {
+  className: undefined,
+};
+
 // const ModalButton = ModalPortalHOC(Button);
 
 export default Button;
-// export { ModalButton };
+export { IconButton };

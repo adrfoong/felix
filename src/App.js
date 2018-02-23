@@ -62,43 +62,54 @@ import Button from './Button';
 // };
 
 export default class App extends Component {
-    constructor(props, context) {
-      super(props, context);
-      this.test = occurrences.record;
-      this.modalPortal = ModalPortalHOC(
-        Button,
-        <BasicModal
-          header='Hello'
-          body='you'
-          onAccept={() => this.closeModal()}
-          onCancel={() => this.closeModal()}
-        />
-      );
+  static loadData() {
+    // return JSON.parse(localStorage.getItem('occ')) || occurrences.record;
+    return occurrences.record;
+  }
 
-      this.state = {
-        showModal: false,
-      };
-    }
+  static saveData(data) {
+    localStorage.setItem('occ', JSON.stringify(data));
+  }
 
-    openModal() {
-      this.setState({ showModal: true });
-    }
+  constructor(props, context) {
+    super(props, context);
+    // this.test = occurrences.record;
+    this.test = App.loadData();
 
-    closeModal() {
-      this.setState({ showModal: false });
-    }
+    this.modalPortal = ModalPortalHOC(
+      Button,
+      <BasicModal
+        header='Hello'
+        body='you'
+        onAccept={() => this.closeModal()}
+        onCancel={() => this.closeModal()}
+      />
+    );
 
-    render() {
-      const { showModal } = this.state;
-      const ModalPortal = this.modalPortal;
-      return (
-        <div className='App'>
-          <header className='App-header'>
-            <h1 className='App-title'>Welcome to React</h1>
-          </header>
-          <OccurrenceTable data={this.test} />
-          <ModalPortal showModal={showModal}>Modal</ModalPortal>
-        </div>
-      );
-    }
+    this.state = {
+      showModal: false,
+    };
+  }
+
+  openModal() {
+    this.setState({ showModal: true });
+  }
+
+  closeModal() {
+    this.setState({ showModal: false });
+  }
+
+  render() {
+    const { showModal } = this.state;
+    const ModalPortal = this.modalPortal;
+    return (
+      <div className='App'>
+        <header className='App-header'>
+          <h1 className='App-title'>Welcome to React</h1>
+        </header>
+        <OccurrenceTable save={App.saveData} data={this.test} />
+        <ModalPortal showModal={showModal}>Modal</ModalPortal>
+      </div>
+    );
+  }
 }

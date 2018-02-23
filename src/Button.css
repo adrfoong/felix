@@ -37,6 +37,11 @@
   /* transition: 0.5s; */
 }
 
+.button:disabled,:disabled .button--icon:disabled:disabled {
+  background-color: gray;
+  opacity: 0.9;
+}
+
 .button:hover {
   /* background-position: right center; */
   background: var(--hover-background-color);
@@ -74,4 +79,21 @@
 
 .button.slide-down:hover {
   background-position: top center;
+}
+
+
+
+.button--icon {
+  height: 25px;
+  width: 25px;
+  min-width: 25px;
+  padding: 0;
+}
+
+.button--icon.remove {
+  background-color: red;
+}
+
+.button--icon.add {
+  background-color: limegreen;
 }
