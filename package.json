@@ -5,6 +5,7 @@
   "dependencies": {
     "classnames": "^2.2.5",
     "moment": "^2.20.1",
+    "papaparse": "^4.3.7",
     "prop-types": "^15.6.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",

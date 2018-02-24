@@ -37,9 +37,10 @@
   /* transition: 0.5s; */
 }
 
-.button:disabled,:disabled .button--icon:disabled:disabled {
-  background-color: gray;
-  opacity: 0.9;
+.button:disabled:disabled, .button--icon:disabled:disabled {
+  background-color: rgba(0,0,0,.2);
+  color: rgba(0,0,0,.5);
+  cursor: not-allowed;
 }
 
 .button:hover {

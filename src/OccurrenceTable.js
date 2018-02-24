@@ -84,7 +84,6 @@ RecencyCell.propTypes = {
   row: PropTypes.shape({
     value: PropTypes.any,
   }).isRequired,
-  // position: PropTypes.objectOf(PropTypes.number).isRequired,
 };
 
 const EditableCell = (cellInfo) => (
@@ -105,7 +104,6 @@ const ContextMenu = props => {
   let container;
   const handleOutsideClick = (e) => {
     if (container && !container.contains(e.target)) {
-      // console.log('Clicked outside');
       document.removeEventListener('mousedown', handleOutsideClick);
 
       closeMenu();
@@ -165,11 +163,6 @@ class TrGroupComponent extends React.Component {
   render() {
     const { children, addRow, removeRow, className, rowInfo, ...rest } = this.props;
     const { showMenu } = this.state;
-    // if (!this.menu) {
-    //   this.menu = <TableContextMenu hideMenu={this.hideMenu} addRow={addRow} removeRow={removeRow} rowInfo={rowInfo} />;
-    // }
-
-    // const { index } = rowInfo;
 
     return (
       <div
@@ -181,8 +174,9 @@ class TrGroupComponent extends React.Component {
         className={classNames('rt-tr-group context-menu__container', className)}
         {...rest}
       >
-        {showMenu ? <ContextMenu closeMenu={() => this.hideMenu()} rowInfo={rowInfo} addRow={addRow} removeRow={removeRow} /> : null}
+        {/* {React.Children.map(children, child => child ? React.cloneElement(child, { ...child.props, className: classNames(child.props.className, { blur: showMenu }) }) : child)} */}
         {children}
+        {showMenu ? <ContextMenu closeMenu={() => this.hideMenu()} rowInfo={rowInfo} addRow={addRow} removeRow={removeRow} /> : null}
       </div>
     );
   }
@@ -204,13 +198,10 @@ TrGroupComponent.defaultProps = {
 class OccurrenceTable extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      data: props.data,
-    };
 
     this.columns = [
-      { Header: 'First Name', id: 'firstName', updateData: (val, index) => this.update(val, index, 'firstName'), accessor: 'firstName', Cell: EditableCell },
-      { Header: 'Last Name', id: 'lastName', updateData: (val, index) => this.update(val, index, 'lastName'), accessor: 'lastName', Cell: EditableCell },
+      { Header: 'First Name', id: 'firstName', updateData: (val, index) => this.updateRow(val, index, 'firstName'), accessor: 'firstName', Cell: EditableCell },
+      { Header: 'Last Name', id: 'lastName', updateData: (val, index) => this.updateRow(val, index, 'lastName'), accessor: 'lastName', Cell: EditableCell },
       { Header: 'Last Occurrence', id: 'lastOccurrence', accessor: d => (d.lastOccurrence ? moment(d.lastOccurrence).format('LL') : null) },
       {
           Header: 'Recency',
@@ -222,14 +213,11 @@ class OccurrenceTable extends Component {
   }
 
   componentDidUpdate() {
-    this.props.save(this.state.data);
+    this.props.save(this.props.data);
   }
 
-  /**
-   * Delegate control to update state with modified data without mutating current state
-   */
-  update(val, index, prop) {
-    const { data } = this.state;
+  updateRow(val, index, prop) {
+    const { updateAppState, data } = this.props;
 
     const change = { [prop]: val };
 
@@ -243,28 +231,28 @@ class OccurrenceTable extends Component {
     });
 
     // Update state with new state
-    this.setState({ data: updatedData });
+    updateAppState(updatedData);
   }
 
   addNewRow(index) {
-    const { data } = this.state;
+    const { updateAppState, data } = this.props;
 
     const updatedData = index !== undefined ?
-    [...data.slice(0, index + 1), { firstName: 'John', lastName: 'Doe', lastOccurrence: moment() }, ...data.slice(index + 1)] :
-    [...data, { firstName: 'John', lastName: 'Doe', lastOccurrence: moment() }];
-    this.setState({ data: updatedData });
+      [...data.slice(0, index + 1), { firstName: 'John', lastName: 'Doe', lastOccurrence: moment() }, ...data.slice(index + 1)] :
+      [...data, { firstName: 'John', lastName: 'Doe', lastOccurrence: moment() }];
+    updateAppState(updatedData);
   }
 
   removeRow(index) {
-    const { data } = this.state;
+    const { updateAppState, data } = this.props;
 
     const updatedData = [...data.slice(0, index), ...data.slice(index + 1)];
-    this.setState({ data: updatedData });
+    updateAppState(updatedData);
   }
 
   render() {
     // We're not going to modify data at this point, just take data from the state and render
-    const { data } = this.state;
+    const { data } = this.props;
 
     const settings = {
       defaultPageSize: 10,
@@ -287,8 +275,6 @@ class OccurrenceTable extends Component {
           TrGroupComponent={TrGroupComponent}
         />
         <Button onClick={() => this.addNewRow()}>Add Row</Button>
-        {/* <IconButton><i className='fas fa-times' /></IconButton> */}
-        {/* <div><i className='fas fa-times' /></div> */}
       </div>
     );
   }
@@ -297,6 +283,7 @@ class OccurrenceTable extends Component {
 OccurrenceTable.propTypes = {
   data: PropTypes.arrayOf(PropTypes.object).isRequired,
   save: PropTypes.func.isRequired,
+  updateAppState: PropTypes.func.isRequired,
 };
 
 export default OccurrenceTable;

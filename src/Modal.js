@@ -32,7 +32,7 @@ const ModalPortalHOC = (WrappedComponent, ModalElement) => {
     handleShowModal() {
       const { showModal } = this.props;
 
-      if (!showModal) {
+      if (!showModal && this.parent) {
         this.unmountModal();
         this.ignoreUpdate = true;
       }
