@@ -2,6 +2,7 @@ import Papa from 'papaparse';
 import moment from 'moment';
 
 import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
 import 'react-table/react-table.css';
 
 import './App.css';
@@ -14,7 +15,8 @@ import Button from './Button';
 
 export default class App extends Component {
   static loadData() {
-    return JSON.parse(localStorage.getItem('occ')) || occurrences.record;
+    // return JSON.parse(localStorage.getItem('occ')) || occurrences.record;
+    return occurrences.record;
   }
 
   static saveData(data) {
@@ -79,6 +81,24 @@ export default class App extends Component {
 
   async handleUpload(e) {
     const file = e.target.files[0];
+    const chunks = file.name.split('.');
+
+    if (chunks[chunks.length - 1] !== 'csv') {
+      const modalPortal = document.createElement('div');
+      modalPortal.classList.add('modal-portal');
+      const parent = this.upload.parentNode;
+      parent.insertBefore(modalPortal, this.upload);
+      ReactDOM.render(
+        <Modal className='alert' isOpen unmountModal={() => { ReactDOM.unmountComponentAtNode(modalPortal); parent.removeChild(modalPortal);}}>
+          <div className='alert__icon'><i className='far fa-times-circle' /></div>
+          <div className='alert__type' style={{ fontFamily: 'Quicksand' }}>Error</div>
+          <div className='alert__message'>Only CSV files can be uploaded</div>
+          <div className='alert__button'><Button>OK</Button></div>
+        </Modal>,
+        modalPortal
+      );
+      return;
+    }
 
     const result = await new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -95,8 +115,9 @@ export default class App extends Component {
     });
 
     const { data } = Papa.parse(result, { header: true });
+    const newData = data.map(row => ({ ...row, lastOccurrence: moment(row.lastOccurrence, 'MMM DD YYYY') }));
 
-    this.setState({ data });
+    this.setState({ data: newData });
   }
 
   update(data) {

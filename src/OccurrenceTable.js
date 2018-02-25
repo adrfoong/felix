@@ -43,7 +43,7 @@ class RecencyCell extends Component {
     const FRESH_THRESHOLD = 0;
 
     // If the last occurrence is null, we set timeDiff to null
-    const timeDiff = row.value === null ? null : moment().diff(moment(row.value), 'days');
+    const timeDiff = row.value === null ? null : moment().diff(moment(row.value, 'YYYY-MM-DD'), 'days');
 
     // If timeDiff is null, we don't want the bar to show up
     // Otherwise, the bar should at least be 1 pixel wide
@@ -86,18 +86,27 @@ RecencyCell.propTypes = {
   }).isRequired,
 };
 
-const EditableCell = (cellInfo) => (
+const EditableCell = ({ column, index, value, onChange }) => (
   <div
     style={{ backgroundColor: '#fafafa' }}
     contentEditable
     suppressContentEditableWarning
     onBlur={e => {
-        cellInfo.column.updateData(e.target.innerHTML, cellInfo.index);
-      }}
+      column.updateData(e.target.innerHTML, index);
+    }}
   >
-    { cellInfo.row[cellInfo.column.id] }
+    { value }
   </div>
 );
+
+const EditableDateCell = props => {
+
+  const { value } = props;
+  const formattedValue = value !== null ? value : null;
+  const newProps = { ...props, value: formattedValue };
+
+  return <EditableCell {...newProps} />;
+};
 
 const ContextMenu = props => {
   const { closeMenu, rowInfo, addRow, removeRow } = props;
@@ -111,7 +120,6 @@ const ContextMenu = props => {
   };
 
   document.addEventListener('mousedown', handleOutsideClick);
-
 
   return (
     <div className='context-menu' ref={ref => { container = ref; }}>
@@ -202,12 +210,18 @@ class OccurrenceTable extends Component {
     this.columns = [
       { Header: 'First Name', id: 'firstName', updateData: (val, index) => this.updateRow(val, index, 'firstName'), accessor: 'firstName', Cell: EditableCell },
       { Header: 'Last Name', id: 'lastName', updateData: (val, index) => this.updateRow(val, index, 'lastName'), accessor: 'lastName', Cell: EditableCell },
-      { Header: 'Last Occurrence', id: 'lastOccurrence', accessor: d => (d.lastOccurrence ? moment(d.lastOccurrence).format('LL') : null) },
       {
-          Header: 'Recency',
-          id: 'recency',
-          accessor: d => (d.lastOccurrence ? d.lastOccurrence : null),
-          Cell: row => <RecencyCell row={row} />,
+        Header: 'Last Occurrence',
+        id: 'lastOccurrence',
+        accessor: 'lastOccurrence',
+        updateData: (val, index) => this.updateRow(val, index, 'lastOccurrence'),
+        Cell: EditableDateCell,
+      },
+      {
+        Header: 'Recency',
+        id: 'recency',
+        accessor: d => (d.lastOccurrence ? d.lastOccurrence : null),
+        Cell: row => <RecencyCell row={row} />,
       },
     ];
   }

@@ -13,6 +13,7 @@ const ModalPortalHOC = (WrappedComponent, ModalElement) => {
     constructor(props) {
       super(props);
       this.modalPortal = document.createElement('div');
+      this.modalPortal.classList.add('modal-portal');
     }
 
     componentWillReceiveProps() {
@@ -99,7 +100,7 @@ class Modal extends Component {
   }
 
   render() {
-    const { children, variant, isOpen } = this.props;
+    const { children, variant, isOpen, className } = this.props;
 
     this.el.classList.add('modal');
     if (isOpen) {
@@ -112,7 +113,7 @@ class Modal extends Component {
 
     return (
       isOpen ? ReactDOM.createPortal(
-        <ModalContainer containerRef={ref => { this.container = ref; }} className={classNames('modal__container', variantClass)}>
+        <ModalContainer containerRef={ref => { this.container = ref; }} className={classNames('modal__container', variantClass, className)}>
           { children }
         </ModalContainer>,
         this.el
@@ -126,10 +127,12 @@ Modal.propTypes = {
   variant: PropTypes.string,
   unmountModal: PropTypes.func.isRequired,
   isOpen: PropTypes.bool.isRequired,
+  className: PropTypes.string,
 };
 
 Modal.defaultProps = {
   variant: undefined,
+  className: undefined,
 };
 
 const ModalContainer = props => {

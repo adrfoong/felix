@@ -73,3 +73,56 @@
 .button-container .button:not(:nth-last-child(1)) {
   margin-right: 5px;
 }
+
+.alert {
+  display: grid;
+  grid-template-areas: 'icon' 'type' 'message' 'buttons';
+  grid-template-rows: 2fr 1fr 2fr 1fr;
+}
+
+.alert__icon {
+  font-size: 128px;
+  color: red;
+  text-align: center;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  grid-area: icon;
+}
+
+.alert__type {
+  font-size: 64px;
+  color: red;
+  text-align: center;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  grid-area: type;
+}
+
+.alert__message {
+  font-size: 28px;
+  text-align: center;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  grid-area: message;
+}
+
+.alert__button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  grid-area: buttons;
+}
+
+.modal-portal {
+  display: none;
+}
