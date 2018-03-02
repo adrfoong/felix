@@ -13,10 +13,17 @@ import OccurrenceTable from './OccurrenceTable';
 import { BasicModal, Modal, ModalPortalHOC } from './Modal';
 import Button from './Button';
 
+const transformData = data => {
+  return data.map(d => {
+    const { lastOccurrence } = d;
+    return { ...d, lastOccurrence: moment(lastOccurrence, 'MM-DD-YYYY') };
+  });
+};
+
 export default class App extends Component {
   static loadData() {
     // return JSON.parse(localStorage.getItem('occ')) || occurrences.record;
-    return occurrences.record;
+    return transformData(occurrences.record);
   }
 
   static saveData(data) {
@@ -117,7 +124,7 @@ export default class App extends Component {
     const { data } = Papa.parse(result, { header: true });
     const newData = data.map(row => ({ ...row, lastOccurrence: moment(row.lastOccurrence, 'MMM DD YYYY') }));
 
-    this.setState({ data: newData });
+    this.setState({ data: transformData(newData) });
   }
 
   update(data) {
@@ -132,10 +139,12 @@ export default class App extends Component {
         <header className='App-header'>
           <h1 className='App-title'>Welcome to React</h1>
         </header>
-        <OccurrenceTable updateAppState={d => this.update(d)} save={App.saveData} data={data} />
+        <div className='table'>
+          <OccurrenceTable updateAppState={d => this.update(d)} save={App.saveData} data={data} />
+        </div>
         <ModalPortal showModal={showModal}>Modal</ModalPortal>
         <Button onClick={() => this.csv()}>CSV</Button>
-        <input ref={ref => { this.upload = ref; }} type='file' accept='.csv' style={{display: 'none'}} onChange={(e) => this.handleUpload(e)} />
+        <input ref={ref => { this.upload = ref; }} type='file' accept='.csv' style={{ display: 'none' }} onChange={(e) => this.handleUpload(e)} />
         <Button onClick={() => this.upload.click()}>Upload</Button>
       </div>
     );

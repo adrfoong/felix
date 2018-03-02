@@ -1,36 +1,38 @@
 body * {
   font-family: 'Lato', sans-serif;
+  /* background-color: grey; */
   /* box-sizing: border-box; */
 }
 
-/* .App {
-    text-align: center;
-  } */
+.App {
+  text-align: center;
+  height: 100%;
+}
 
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-    height: 80px;
-  }
+.App-logo {
+  animation: App-logo-spin infinite 20s linear;
+  height: 80px;
+}
 
-  .App-header {
-    background-color: #222;
-    height: 150px;
-    padding: 20px;
-    color: white;
-  }
+.App-header {
+  background-color: #222;
+  height: 150px;
+  padding: 20px;
+  color: white;
+}
 
-  .App-title {
-    font-size: 1.5em;
-  }
+.App-title {
+  font-size: 1.5em;
+}
 
-  .App-intro {
-    font-size: large;
-  }
+.App-intro {
+  font-size: large;
+}
 
-  @keyframes App-logo-spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
+@keyframes App-logo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
 
 
 
@@ -103,6 +105,7 @@ body * {
 
 .occurrence-table {
   /* width: 1000px; */
+  background-color: white;
 }
 
 .recency-cell-container {
@@ -193,7 +196,7 @@ body * {
   position: absolute;
   /* background: rgba(255, 165, 0, 0.75); */
   border-radius: 2px;
-  background: linear-gradient(to right, rgba(255, 165, 0, 0.75), rgba(255, 165, 0, 0.95)) ;
+  /* background: linear-gradient(to right, rgba(255, 165, 0, 0.75), rgba(255, 165, 0, 0.95)) ; */
   height: 100%;
   width: 100%;
   /* opacity: .5; */
@@ -225,6 +228,18 @@ body * {
   background: grey;
   opacity: 0.5;
 }
+
+.editable-cell {
+  background-color: #fafafa;
+  width: 100%;
+  border: none;
+  font-size: 16px;
+}
+
+.editable-cell:focus {
+  outline: rgb(77, 144, 254) auto 1px;
+}
+
 /* 
 .rt-tr.blur::after {
   content: '';
@@ -240,3 +255,12 @@ body * {
   display: block; /* For Firefox
 }
 */
+
+.table {
+  padding: 5px;
+}
+
+[role='row']:focus {
+  background: linear-gradient(to right, rgba(255, 165, 0, 0.75), rgba(255, 165, 0, 0.95));
+  outline: 0;
+}

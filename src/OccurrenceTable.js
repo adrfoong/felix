@@ -1,3 +1,5 @@
+import { createAutoCorrectedDatePipe } from 'text-mask-addons';
+import MaskedInput from 'react-text-mask';
 
 import React, { Component } from 'react';
 import classNames from 'classnames';
@@ -10,9 +12,10 @@ import Button, { IconButton } from './Button';
 
 const TooltipContent = props => {
   const { timeDiff } = props;
+  const label = Number.isNaN(timeDiff) ? 'No record available' : `${timeDiff} days`;
   return (
     <div>
-      {`${timeDiff} days`}
+      {label}
     </div>
   );
 };
@@ -43,7 +46,7 @@ class RecencyCell extends Component {
     const FRESH_THRESHOLD = 0;
 
     // If the last occurrence is null, we set timeDiff to null
-    const timeDiff = row.value === null ? null : moment().diff(moment(row.value, 'YYYY-MM-DD'), 'days');
+    const timeDiff = row.value === null ? null : moment().diff(moment(row.value, 'MM-DD-YYYY'), 'days');
 
     // If timeDiff is null, we don't want the bar to show up
     // Otherwise, the bar should at least be 1 pixel wide
@@ -86,26 +89,63 @@ RecencyCell.propTypes = {
   }).isRequired,
 };
 
-const EditableCell = ({ column, index, value, onChange }) => (
-  <div
-    style={{ backgroundColor: '#fafafa' }}
-    contentEditable
-    suppressContentEditableWarning
-    onBlur={e => {
-      column.updateData(e.target.innerHTML, index);
-    }}
-  >
-    { value }
-  </div>
-);
+const EditableCell = (props) => {
+  const { column, index, value, tdProps } = props;
+  const { selected, updateCellSelection } = tdProps.rest;
+  const handleKeyDown = (e) => {
+    e.stopPropagation();
+    if (e.key === 'Tab') {
+      // updateCellSelection(column.index + 1);
+    }
+
+  };
+
+  let input;
+
+  return (
+    <input
+      ref={ref => { input = ref; }}
+      className='editable-cell'
+      type='text'
+      value={value}
+      // onBlur={e => column.updateData(e.target.value, index)}
+      onChange={e => column.updateData(e.target.value, index)}
+      onKeyDown={e => handleKeyDown(e)}
+    />
+  );
+
+};
 
 const EditableDateCell = props => {
 
-  const { value } = props;
-  const formattedValue = value !== null ? value : null;
-  const newProps = { ...props, value: formattedValue };
+  const { column, index, value, tdProps } = props;
+  const { selected, updateCellSelection } = tdProps.rest;
+  const handleKeyDown = (e) => {
+    e.stopPropagation();
+    if (e.key === 'Tab') {
+      // updateCellSelection(column.index + 1);
+    }
 
-  return <EditableCell {...newProps} />;
+  };
+
+  const formattedValue = value ? value.format('MM-DD-YYYY') : null;
+
+  return (<MaskedInput
+    className='editable-cell'
+    type='text'
+    placeholder='mm-dd-yyyy'
+    value={formattedValue}
+    onBlur={e => {
+      const correctedValue = e.target.value ? e.target.value.replace(/(?:(?:(\d)_|_(\d))(?=-)|(\d*)_+(\d*))/g, (match, p1, p2, p3, p4) => (match.length > 2 ? (p3 + p4).padStart(4, '0') : `0${p1 || p2}`)) : null;
+      const momentValue = moment(correctedValue, 'MM-DD-YYYY');
+      column.updateData(momentValue, index);
+    }}
+    onKeyDown={e => handleKeyDown(e)}
+    // onChange={e => column.updateData(e.target.value, index)}
+    mask={[/\d/, /\d/, '-', /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/]}
+    pipe={createAutoCorrectedDatePipe('mm-dd-yyyy')}
+    keepCharPositions
+  />);
 };
 
 const ContextMenu = props => {
@@ -135,9 +175,13 @@ const ContextMenu = props => {
 
 ContextMenu.propTypes = {
   closeMenu: PropTypes.func.isRequired,
-  rowInfo: PropTypes.shape({}).isRequired,
+  rowInfo: PropTypes.shape({}),
   addRow: PropTypes.func.isRequired,
   removeRow: PropTypes.func.isRequired,
+};
+
+ContextMenu.defaultProps = {
+  rowInfo: undefined,
 };
 
 class TrGroupComponent extends React.Component {
@@ -145,8 +189,24 @@ class TrGroupComponent extends React.Component {
     super(props);
     this.state = {
       showMenu: false,
+      selected: false,
+      x: -1,
     };
     TrGroupComponent.displayName = 'TrGroup';
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { selected } = nextProps;
+
+    this.setState({
+      selected,
+    });
+  }
+
+  componentDidUpdate() {
+    if (this.state.selected) {
+      this.container.focus();
+    }
   }
 
   showMenu() {
@@ -168,13 +228,41 @@ class TrGroupComponent extends React.Component {
     });
   }
 
+  focusChild() {
+    // ReactDOM.findDOMNode(this.props.children[0]).focus();
+    this.container.getElementsByClassName('editable-cell')[0].focus();
+  }
+
+  handleKeyDown(e) {
+    const { key } = e;
+    const { addRow, removeRow, rowInfo, updateRowSelection, updateCellSelection } = this.props;
+    e.stopPropagation();
+    e.preventDefault();
+    if (key === 'Enter' || key === 'Tab') {
+      this.focusChild();
+    } else if (key === '+' && rowInfo) {
+      addRow();
+    } else if (key === '-' && rowInfo) {
+      removeRow();
+    } else if (key === 'ArrowDown' && rowInfo) {
+      updateRowSelection(rowInfo.index + 1);
+    } else if (key === 'ArrowUp' && rowInfo) {
+      updateRowSelection(rowInfo.index - 1);
+    }
+  }
+
   render() {
-    const { children, addRow, removeRow, className, rowInfo, ...rest } = this.props;
+    const { children, addRow, removeRow, className, rowInfo, updateRowSelection, showMenu: sm, ...rest } = this.props;
     const { showMenu } = this.state;
 
     return (
       <div
+        ref={div => { this.container = div; }}
+        role='row'
+        tabIndex={0}
         onContextMenu={e => this.toggleMenu(e)}
+        // onClick={e => this.toggleMenu(e)}
+        onKeyDown={e => this.handleKeyDown(e)}
         // onMouseOver={e => this.showMenu(e)}
         // onFocus={() => { console.log('focus'); }}
         // onMouseOut={e => this.hideMenu(e)}
@@ -208,9 +296,24 @@ class OccurrenceTable extends Component {
     super(props);
 
     this.columns = [
-      { Header: 'First Name', id: 'firstName', updateData: (val, index) => this.updateRow(val, index, 'firstName'), accessor: 'firstName', Cell: EditableCell },
-      { Header: 'Last Name', id: 'lastName', updateData: (val, index) => this.updateRow(val, index, 'lastName'), accessor: 'lastName', Cell: EditableCell },
       {
+        index: 0,
+        Header: 'First Name',
+        id: 'firstName',
+        updateData: (val, index) => this.updateRow(val, index, 'firstName'),
+        accessor: 'firstName',
+        Cell: EditableCell,
+      },
+      {
+        index: 1,
+        Header: 'Last Name',
+        id: 'lastName',
+        updateData: (val, index) => this.updateRow(val, index, 'lastName'),
+        accessor: 'lastName',
+        Cell: EditableCell,
+      },
+      {
+        index: 2,
         Header: 'Last Occurrence',
         id: 'lastOccurrence',
         accessor: 'lastOccurrence',
@@ -218,16 +321,47 @@ class OccurrenceTable extends Component {
         Cell: EditableDateCell,
       },
       {
+        index: 3,
         Header: 'Recency',
         id: 'recency',
         accessor: d => (d.lastOccurrence ? d.lastOccurrence : null),
         Cell: row => <RecencyCell row={row} />,
       },
     ];
+
+    this.state = {
+      y: -1,
+      x: -1,
+    };
   }
 
   componentDidUpdate() {
     this.props.save(this.props.data);
+    console.log(this.state);
+  }
+
+  handleKeyDown(e) {
+    const { key } = e;
+
+    if (key === '+') {
+      this.addNewRow();
+    }
+  }
+
+  updateRowSelection(y) {
+    const newY = Math.max(0, Math.min(this.props.data.length, y))
+
+    this.setState({
+      y: newY,
+    });
+  }
+
+  updateCellSelection(x) {
+    // const newX = Math.max(0, Math.min(this.props.data[0].length, x));
+
+    this.setState({
+      x,
+    });
   }
 
   updateRow(val, index, prop) {
@@ -274,8 +408,10 @@ class OccurrenceTable extends Component {
 
     const TrGroupProps = (state, rowInfo) => ({
       rowInfo,
+      selected: rowInfo ? this.state.y === rowInfo.index : false,
       removeRow: () => this.removeRow(rowInfo.index),
       addRow: () => this.addNewRow(rowInfo.index),
+      updateRowSelection: (y) => this.updateRowSelection(y),
     });
 
     return (

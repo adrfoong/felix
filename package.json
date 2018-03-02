@@ -10,7 +10,9 @@
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-scripts": "1.1.0",
-    "react-table": "^6.7.6"
+    "react-table": "^6.7.6",
+    "react-text-mask": "^5.1.0",
+    "text-mask-addons": "^3.7.1"
   },
   "scripts": {
     "start": "react-scripts start",
