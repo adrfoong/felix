@@ -16,7 +16,7 @@ import Button from './Button';
 const transformData = data => {
   return data.map(d => {
     const { lastOccurrence } = d;
-    return { ...d, lastOccurrence: moment(lastOccurrence, 'MM-DD-YYYY') };
+    return { ...d, lastOccurrence: lastOccurrence !== null ? moment(lastOccurrence, 'MM-DD-YYYY') : null };
   });
 };
 
@@ -62,7 +62,7 @@ export default class App extends Component {
     // Add recency column and format date
     const newData = data.map(row => {
       const { firstName, lastName, lastOccurrence: date } = row;
-      const lastOccurrence = date !== null ? moment(date).format('MMM DD YYYY') : null;
+      const lastOccurrence = date !== null ? moment(date).format('MM-DD-YYYY') : null;
       const recency = row.lastOccurrence === null ? null : moment().diff(moment(row.lastOccurrence), 'days');
 
       return { firstName, lastName, lastOccurrence, recency };

@@ -108,6 +108,7 @@ const EditableCell = (props) => {
       className='editable-cell'
       type='text'
       value={value}
+      // onFocus={e => { e.stopPropagation(); }}
       // onBlur={e => column.updateData(e.target.value, index)}
       onChange={e => column.updateData(e.target.value, index)}
       onKeyDown={e => handleKeyDown(e)}
@@ -135,10 +136,14 @@ const EditableDateCell = props => {
     type='text'
     placeholder='mm-dd-yyyy'
     value={formattedValue}
+    onFocus={e => { e.stopPropagation(); }}
     onBlur={e => {
       const correctedValue = e.target.value ? e.target.value.replace(/(?:(?:(\d)_|_(\d))(?=-)|(\d*)_+(\d*))/g, (match, p1, p2, p3, p4) => (match.length > 2 ? (p3 + p4).padStart(4, '0') : `0${p1 || p2}`)) : null;
-      const momentValue = moment(correctedValue, 'MM-DD-YYYY');
-      column.updateData(momentValue, index);
+
+      if (correctedValue !== formattedValue) {
+        const momentValue = moment(correctedValue, 'MM-DD-YYYY');
+        column.updateData(momentValue, index);
+      }
     }}
     onKeyDown={e => handleKeyDown(e)}
     // onChange={e => column.updateData(e.target.value, index)}
@@ -189,22 +194,12 @@ class TrGroupComponent extends React.Component {
     super(props);
     this.state = {
       showMenu: false,
-      selected: false,
-      x: -1,
     };
     TrGroupComponent.displayName = 'TrGroup';
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { selected } = nextProps;
-
-    this.setState({
-      selected,
-    });
-  }
-
-  componentDidUpdate() {
-    if (this.state.selected) {
+  componentDidUpdate(prevProps) {
+    if (this.props.selected) {
       this.container.focus();
     }
   }
@@ -235,7 +230,7 @@ class TrGroupComponent extends React.Component {
 
   handleKeyDown(e) {
     const { key } = e;
-    const { addRow, removeRow, rowInfo, updateRowSelection, updateCellSelection } = this.props;
+    const { addRow, removeRow, rowInfo, updateCellSelection } = this.props;
     e.stopPropagation();
     e.preventDefault();
     if (key === 'Enter' || key === 'Tab') {
@@ -244,9 +239,21 @@ class TrGroupComponent extends React.Component {
       addRow();
     } else if (key === '-' && rowInfo) {
       removeRow();
-    } else if (key === 'ArrowDown' && rowInfo) {
+    }
+  }
+
+  // This is triggered before the cell handlers
+  handleKeyDownCapture(e) {
+    const { key } = e;
+    const { rowInfo, updateRowSelection, updateCellSelection } = this.props;
+
+    if (key === 'ArrowDown' && rowInfo) {
+      e.stopPropagation();
+      e.preventDefault();
       updateRowSelection(rowInfo.index + 1);
     } else if (key === 'ArrowUp' && rowInfo) {
+      e.stopPropagation();
+      e.preventDefault();
       updateRowSelection(rowInfo.index - 1);
     }
   }
@@ -259,12 +266,13 @@ class TrGroupComponent extends React.Component {
       <div
         ref={div => { this.container = div; }}
         role='row'
-        tabIndex={0}
+        tabIndex={rowInfo && rowInfo.index === 0 ? 0 : -1}
         onContextMenu={e => this.toggleMenu(e)}
         // onClick={e => this.toggleMenu(e)}
         onKeyDown={e => this.handleKeyDown(e)}
+        onKeyDownCapture={e => this.handleKeyDownCapture(e)}
         // onMouseOver={e => this.showMenu(e)}
-        // onFocus={() => { console.log('focus'); }}
+        // onFocus={rowInfo && rowInfo.index === 0 ? (e) => {updateRowSelection(rowInfo.index)} : () => {}}
         // onMouseOut={e => this.hideMenu(e)}
         // onBlur={() => { console.log('blur'); }}
         className={classNames('rt-tr-group context-menu__container', className)}
@@ -330,8 +338,9 @@ class OccurrenceTable extends Component {
     ];
 
     this.state = {
-      y: -1,
+      y: 0, // is this a bad idea?
       x: -1,
+      showMenu: false,
     };
   }
 
@@ -349,7 +358,7 @@ class OccurrenceTable extends Component {
   }
 
   updateRowSelection(y) {
-    const newY = Math.max(0, Math.min(this.props.data.length, y))
+    const newY = Math.max(0, Math.min(this.props.data.length - 1, y))
 
     this.setState({
       y: newY,
@@ -363,6 +372,12 @@ class OccurrenceTable extends Component {
       x,
     });
   }
+
+  // toggleMenu() {
+  //   this.setState({
+  //     showMenu: !this.state.showMenu,
+  //   })
+  // }
 
   updateRow(val, index, prop) {
     const { updateAppState, data } = this.props;
@@ -409,6 +424,8 @@ class OccurrenceTable extends Component {
     const TrGroupProps = (state, rowInfo) => ({
       rowInfo,
       selected: rowInfo ? this.state.y === rowInfo.index : false,
+      // showMenu: this.state.showMenu,
+      // onContextMenu: () => this.toggleMenu
       removeRow: () => this.removeRow(rowInfo.index),
       addRow: () => this.addNewRow(rowInfo.index),
       updateRowSelection: (y) => this.updateRowSelection(y),
